@@ -2,7 +2,7 @@ from ble_device import BLEDevice
 from sync_protocol import *
 import time
 
-ESP32_ADDRESSES = ["38:18:2B:EA:7F:4E", "XX:XX:XX:XX:XX:XX"]
+ESP32_ADDRESSES = ["38:18:2B:EA:7F:4E"] #, "XX:XX:XX:XX:XX:XX"]
 SYNC_CHAR_HANDLE = 0x0010
 DATA_CHAR_HANDLE = 0x0012
 
