@@ -8,7 +8,7 @@ Synchronize and stream timestamped sensor data from two ESP32s to a Raspberry Pi
 |--------|-----------|----------|---------------|
 | ESP1   | TX=17     | RX=15   | `/dev/serial0` |
 | ESP1   | RX=16     | TX=14   |               |
-| ESP2   | TX=17     | RX=5    | `/dev/ttyAMA1` |
+| ESP2   | TX=17     | RX=5    | `/dev/ttyAMA2` |
 | ESP2   | RX=16     | TX=4    |               |
 
 Connect GND on both ESP32s to Pi GND.
@@ -19,7 +19,8 @@ Edit `/boot/config.txt`:
 
 ```ini
 enable_uart=1
-dtoverlay=uart1,txd=4,rxd=5
+dtoverlay=uart1
+dtoverlay=uart2
 ```
 
 Disable serial login:
