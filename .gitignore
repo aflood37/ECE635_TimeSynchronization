@@ -1,1 +1,4 @@
 .venv
+plots
+time_sync.log
+log.csv
