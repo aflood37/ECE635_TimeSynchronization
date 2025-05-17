@@ -37,5 +37,5 @@ sudo reboot
 
 ```bash
 cd raspberry_pi
-python3 run_all.py
+python3 time_sync_daemon.py
 ```
