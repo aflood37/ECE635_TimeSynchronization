@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV /home/aflood/Projects/ECE635_TimeSynchronization/.venv
+set -gx VIRTUAL_ENV /home/aidanflood/Projects/ECE635_TimeSynchronization/.venv
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/"bin $PATH

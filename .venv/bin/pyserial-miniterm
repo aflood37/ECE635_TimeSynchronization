@@ -1,4 +1,4 @@
-#!/home/aflood/Projects/ECE635_TimeSynchronization/.venv/bin/python3
+#!/home/aidanflood/Projects/ECE635_TimeSynchronization/.venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys
