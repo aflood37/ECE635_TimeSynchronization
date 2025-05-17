@@ -25,6 +25,7 @@ logging.basicConfig(
 offset_history = []
 delay_diff_history = []
 timestamps = []
+corr_strength_history = []
 
 class SerialReaderThread(threading.Thread):
     def __init__(self, port, name, queue):
@@ -36,11 +37,11 @@ class SerialReaderThread(threading.Thread):
     def run(self):
         while True:
             try:
-                time.sleep(random.uniform(0.005, 0.015))
                 recv_time = time.time()
                 base_ts, samples = self.device.read_samples()
                 self.queue.put((recv_time, base_ts, samples))
                 logging.info(f"{self.name}: Received {len(samples)} samples at {recv_time}")
+                time.sleep(0.1)
             except Exception as e:
                 logging.warning(f"{self.name} read failed: {e}")
                 time.sleep(0.1)
@@ -55,6 +56,7 @@ class ClockOffsetEstimator:
             s1, s2 = s1[:min_len], s2[:min_len]
 
         corr = np.correlate(s1 - np.mean(s1), s2 - np.mean(s2), mode="full")
+        corr_strength = max(corr)
         offset_samples = np.argmax(corr) - (len(s1) - 1)
         sample_period = 1 / 1000
         offset_seconds = offset_samples * sample_period
@@ -64,23 +66,26 @@ class ClockOffsetEstimator:
 
         corrected_offset = offset_seconds + (uart_delay2 - uart_delay1)
 
-        logging.info(f"Raw offset: {offset_seconds:.6f}s, UART delay diff: {(uart_delay2 - uart_delay1):.6f}s, Corrected: {corrected_offset:.6f}s")
+        logging.info(f"Raw offset: {offset_seconds:.6f}s, Correlation strength: {corr_strength}, UART delay diff: {(uart_delay2 - uart_delay1):.6f}s, Corrected: {corrected_offset:.6f}s")
 
         now = time.time()
         offset_history.append(corrected_offset)
         delay_diff_history.append(uart_delay2 - uart_delay1)
         timestamps.append(now)
+        corr_strength_history.append(corr_strength)
         if len(offset_history) > 100:
             offset_history.pop(0)
             delay_diff_history.pop(0)
             timestamps.pop(0)
+            corr_strength_history.pop(0)
 
         with open(CSV_LOG, "a", newline="") as f:
             writer = csv.writer(f)
-            writer.writerow([now, offset_seconds, uart_delay2 - uart_delay1, corrected_offset])
+            writer.writerow([now, offset_seconds, corr_strength, uart_delay2 - uart_delay1, corrected_offset])
 
         if ENABLE_PLOTS:
             self.plot_alignment(s1, s2, offset_samples)
+            self.plot_history(offset_history, corr_strength_history)
 
         return corrected_offset
 
@@ -94,6 +99,28 @@ class ClockOffsetEstimator:
         plt.savefig(filename)
         plt.close()
         logging.debug(f"Saved alignment plot to {filename}")
+
+    def plot_history(self, offsets, corr_strengths):
+        if len(corr_strengths) < 60:
+            plt.plot(corr_strengths, label="Correlation Strengths")
+        else:
+            plt.plot(corr_strengths[-60:], label="Correlation Strengths")
+        plt.title("Correlation Strength History")
+        plt.yscale("log")
+        filename = f"{PLOT_DIR}/correlation_history_{int(time.time())}.png"
+        plt.savefig(filename)
+        plt.close()
+        logging.debug(f"Saved correlation history plot to {filename}")
+
+        if len(offsets) < 60:
+            plt.plot(offsets, label="Clock Offset (s)")
+        else:
+            plt.plot(offsets[-60:], label="Clock Offset (s)")
+        plt.title("Clock Offset History")
+        filename = f"{PLOT_DIR}/offset_history_{int(time.time())}.png"
+        plt.savefig(filename)
+        plt.close()
+        logging.debug(f"Saved offset history plot to {filename}")
 
 def live_plot():
     fig, ax = plt.subplots()
@@ -133,7 +160,7 @@ def main():
     try:
         with open(CSV_LOG, "x", newline="") as f:
             writer = csv.writer(f)
-            writer.writerow(["timestamp", "raw_offset", "uart_delay_diff", "corrected_offset"])
+            writer.writerow(["timestamp", "raw_offset", "correlation_strength", "uart_delay_diff", "corrected_offset"])
     except FileExistsError:
         pass
 
@@ -142,10 +169,10 @@ def main():
             data1 = q1.get()
             data2 = q2.get()
             estimator.estimate_offset(data1, data2)
-            time.sleep(2)
+            time.sleep(5)
         except Exception as e:
             logging.error(f"Error during estimation: {e}")
-            time.sleep(2)
+            time.sleep(5)
 
 if __name__ == "__main__":
     try:

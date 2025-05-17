@@ -1,7 +1,7 @@
 ESP1_PORT = "/dev/ttyAMA0"
 ESP2_PORT = "/dev/ttyAMA2"
 BAUD_RATE = 115200
-ENABLE_PLOTS = False
+ENABLE_PLOTS = True
 PLOT_DIR = "plots"
 CSV_LOG = "log.csv"
 BUFFER_SAMPLES = 1000
