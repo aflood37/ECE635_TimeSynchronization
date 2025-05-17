@@ -31,7 +31,7 @@ Modern distributed sensing systems, particularly in IoT and embedded contexts, d
 The core problem addressed in this work is the lack of reliable, accurate, and infrastructure-independent time synchronization among multiple low-cost embedded sensor nodes. Traditional synchronization protocols either require more advanced hardware, that may be too expensive for the particular use case, or rely on wireless protocols like BLE that can suffer from unpredictable latency, connection instability, and software stack jitter. This introduces new, potentially unaccountable factores. I aim to design a synchronization system that avoids these pitfalls while still using widely available hardware like the ESP32 and Raspberry Pi.
 
 \subsection{System Specifications}
-Our system includes two ESP32 microcontrollers and one Raspberry Pi 5. Each ESP32 is connected to an electret microphone and samples ambient audio using its onboard ADC. Each sample buffer is timestamped with the ESP32’s local clock and transmitted to the Raspberry Pi 5 via a UART serial connection. The Pi correlates incoming audio signals from both ESP32s to determine clock offset and synchronization drift over time. The system operates on the following specifications:
+My system includes two ESP32 microcontrollers and one Raspberry Pi 5. Each ESP32 is connected to an electret microphone and samples ambient audio using its onboard ADC. Each sample buffer is timestamped with the ESP32’s local clock and transmitted to the Raspberry Pi 5 via a UART serial connection. The Pi correlates incoming audio signals from both ESP32s to determine clock offset and synchronization drift over time. The system operates on the following specifications:
 \begin{itemize}
   \item Audio sampled at 1 kHz from both ESP32 devices.
   \item Each ESP32 collects 1-second buffers (1000 samples).
@@ -42,13 +42,13 @@ Our system includes two ESP32 microcontrollers and one Raspberry Pi 5. Each ESP3
 \section{Related Work}
 Achieving precise time synchronization in resource-constrained embedded systems has been an active area of research, particularly for applications in sensor fusion, localization, and distributed control. 
 
-Sandha et al. \cite{sandha2019smartphone} present an extensive study on smartphone synchronization using various peripheral interfaces such as audio, Bluetooth Low Energy (BLE), and Wi-Fi. Their work highlights the trade-offs in timestamping fidelity and peripheral stack delays, concluding that audio-based synchronization can offer sub-millisecond precision by using receiver-to-receiver (R2R) methods. Our work is inspired by their finding that audio synchronization outperforms BLE and Wi-Fi in local settings due to more deterministic stack behavior and access to kernel-level timestamping in some systems.
+Sandha et al. \cite{sandha2019smartphone} present an extensive study on smartphone synchronization using various peripheral interfaces such as audio, Bluetooth Low Energy (BLE), and Wi-Fi. Their work highlights the trade-offs in timestamping fidelity and peripheral stack delays, concluding that audio-based synchronization can offer sub-millisecond precision by using receiver-to-receiver (R2R) methods. My work is inspired by their finding that audio synchronization outperforms BLE and Wi-Fi in local settings due to more deterministic stack behavior and access to kernel-level timestamping in some systems.
 
-BLE-based synchronization protocols such as CheepSync \cite{sridhar2016cheepsync} are optimized for ultra-low-power systems and advertise time information in BLE advertising packets. However, these systems suffer from unpredictable latency due to their reliance on high-level software stacks and limited control over the BLE transmission layer. In practice, our experiments with BLE revealed issues including packet loss, unstable pairing, and timing jitter, which motivated our switch to UART for more deterministic communication.
+BLE-based synchronization protocols such as CheepSync \cite{sridhar2016cheepsync} are optimized for ultra-low-power systems and advertise time information in BLE advertising packets. However, these systems suffer from unpredictable latency due to their reliance on high-level software stacks and limited control over the BLE transmission layer. In practice, my experiments with BLE revealed issues including packet loss, unstable pairing, and timing jitter, which motivated my switch to UART for more deterministic communication.
 
 Other common approaches to synchronization in embedded networks include sender-to-receiver protocols such as NTP and IEEE 1588 PTP. However, these require either internet connectivity (NTP) or hardware timestamping capabilities (PTP), which are unavailable on the ESP32. While previous works in wireless sensor networks (WSNs) such as RBS \cite{elson2002fine} and TPSN \cite{ganeriwal2003timing} offer lightweight solutions, they still require packet exchange and propagation delay estimation, which are prone to variation.
 
-In contrast, our method leverages ambient environmental signals, specifically audio, as naturally shared reference events. This eliminates the need for direct packet exchange between embedded nodes. Related acoustic-based time synchronization systems have also been studied for ultrasonic localization \cite{lazik2015ultrasonic}, which use precisely timed beacons. However, our system operates passively, using arbitrary ambient audio events such as music or claps, and requires no pre-scheduled transmission.
+In contrast, my method leverages ambient environmental signals, specifically audio, as naturally shared reference events. This eliminates the need for direct packet exchange between embedded nodes. Related acoustic-based time synchronization systems have also been studied for ultrasonic localization \cite{lazik2015ultrasonic}, which use precisely timed beacons. However, my system operates passively, using arbitrary ambient audio events such as music or claps, and requires no pre-scheduled transmission.
 
 This work positions itself at the intersection of embedded sensing and infrastructure-free synchronization. By combining cross-correlation with timestamped sensor data and low-overhead UART links, I extend the ideas of audio-based synchronization into a microcontroller-driven architecture suitable for decentralized deployments.
 
@@ -68,10 +68,10 @@ The problem addressed in this work is the design and evaluation of a time synchr
     \item Enable clock offset estimation using minimal hardware and robust computation.
 \end{itemize}
 
-\noindent In the following section, I describe the architecture and mechanisms of our proposed solution.
+\noindent In the following section, I describe the architecture and mechanisms of my proposed solution.
 
 \section{System Design}
-Figure~\ref{fig:system-diagram} illustrates our high-level system architecture for audio-based time synchronization between embedded devices.
+Figure~\ref{fig:system-diagram} illustrates my high-level system architecture for audio-based time synchronization between embedded devices.
 
 \begin{figure}[H]
     \centering
@@ -85,7 +85,7 @@ The system follows a \textbf{receiver-to-receiver} (R2R) synchronization model. 
 The Raspberry Pi 5 functions as the central coordinator. At regular intervals, it sends a UART request to each ESP32. In response, each ESP32 transmits a buffer of recent samples alongside the associated timestamp. The Pi then computes the cross-correlation between the two buffers to find the sample-wise offset at which the waveforms best align. This offset directly reflects the difference in local time between the two ESP32s, enabling synchronization.
 
 \subsection{Architectural Contributions}
-Unlike many systems that rely on packet-based sender-to-receiver synchronization over high-latency wireless links (BLE or Wi-Fi), our approach uses \textbf{passive sensing of shared environmental events}, which are naturally present in many real-world environments. The technical novelty lies in the application of this R2R strategy to low-cost embedded systems without reliance on specialized hardware like PTP-capable NICs.
+Unlike many systems that rely on packet-based sender-to-receiver synchronization over high-latency wireless links (BLE or Wi-Fi), my approach uses \textbf{passive sensing of shared environmental events}, which are naturally present in many real-world environments. The technical novelty lies in the application of this R2R strategy to low-cost embedded systems without reliance on specialized hardware like PTP-capable NICs.
 
 Additionally, the use of cross-correlation for clock offset estimation in a UART-connected system avoids packet timestamping entirely. It leverages analog sensor data—audio waveforms—rather than digital handshakes, simplifying the protocol and reducing susceptibility to jitter or software stack delays.
 
@@ -101,7 +101,7 @@ This architecture emphasizes reliability and clarity over complexity, and demons
 
 \section{Implementation}
 
-This section describes the hardware and software components used to implement our synchronization system, along with the rationale behind the choice of platform and configuration for testing.
+This section describes the hardware and software components used to implement my synchronization system, along with the rationale behind the choice of platform and configuration for testing.
 
 \noindent\textbf{GitHub Repository:} Source code, configuration files, and figures for this project can be accessed at: \\ \url{https://github.com/aflood37/ECE635_TimeSynchronization}
 
@@ -183,9 +183,9 @@ Together, this hardware-software ecosystem forms a robust and repeatable prototy
 
 \section{Evaluation}
 
-To evaluate the performance of our synchronization system, I used several metrics including estimated clock offset stability, correlation strength, and signal alignment before and after applying offset corrections.
+To evaluate the performance of my synchronization system, I used several metrics including estimated clock offset stability, correlation strength, and signal alignment before and after applying offset corrections.
 
-Our system uses a sampling rate of 1 kHz, which theoretically limits temporal resolution to 1 millisecond. Under ideal conditions, this sets a hard lower bound on the achievable synchronization error. In practice, I achieve alignment accuracy close to this bound, with estimated offsets varying within a narrow band once initial convergence is reached.
+My system uses a sampling rate of 1 kHz, which theoretically limits temporal resolution to 1 millisecond. Under ideal conditions, this sets a hard lower bound on the achievable synchronization error. In practice, I achieve alignment accuracy close to this bound, with estimated offsets varying within a narrow band once initial convergence is reached.
 
 \subsection{Results}
 \subsubsection{Clock Offset History}
