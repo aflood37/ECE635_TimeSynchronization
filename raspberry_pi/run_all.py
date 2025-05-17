@@ -1,4 +1,4 @@
-from raspberry_pi.esp_device import ESPDevice
+from esp_device import ESPDevice
 import time
 
 esp_ports = {
